@@ -1,0 +1,43 @@
+<div class="page-header">
+    <div class="page-title">
+        <h1>Deposit Management</h1>
+        <p>Create and manage deposit batches to submit to the bank.</p>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="createDepositBatch()">
+            <i data-lucide="landmark"></i> Create Deposit Batch
+        </button>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="card stat-card">
+        <span class="stat-title">Pending Deposit</span>
+        <span class="stat-value" id="dep-pending-count">-</span>
+        <span class="stat-change neutral" id="dep-pending-amt">-</span>
+    </div>
+    <div class="card stat-card">
+        <span class="stat-title">Today's Deposit</span>
+        <span class="stat-value" id="dep-today-count">0</span>
+        <span class="stat-change positive" id="dep-today-amt">₹0</span>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary);">Cheques Ready for Deposit</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40px;"><input type="checkbox" id="select-all-deposits"></th>
+                    <th>Cheque No.</th>
+                    <th>Teacher</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="ready-deposit-table">
+            </tbody>
+        </table>
+    </div>
+</div>

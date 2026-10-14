@@ -1,0 +1,75 @@
+<div class="page-header">
+    <div class="page-title">
+        <h1>All Cheques</h1>
+        <p>Manage and track the status of all collected cheques.</p>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="window.location.hash='#/ocr'">
+            <i data-lucide="plus"></i> Add Cheque
+        </button>
+    </div>
+</div>
+
+<div class="card mb-6" style="padding: 20px;">
+    <div class="flex" style="gap: 20px; flex-wrap: wrap; align-items: flex-end;">
+        <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+            <label class="form-label">Search Cheques</label>
+            <input type="text" class="form-control" id="cheque-search" placeholder="Cheque number, amount...">
+        </div>
+        <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+            <label class="form-label">Status Filter</label>
+            <select class="form-control" id="status-filter">
+                <option value="all">All Statuses</option>
+                <option value="collected">Collected</option>
+                <option value="ready_for_deposit">Ready for Deposit</option>
+                <option value="deposited">Deposited</option>
+                <option value="cleared">Cleared</option>
+                <option value="bounced">Bounced</option>
+            </select>
+        </div>
+        <button class="btn btn-secondary" onclick="renderChequesTable()">Filter</button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Cheque No.</th>
+                    <th>Teacher</th>
+                    <th>Amount</th>
+                    <th>Cheque Date</th>
+                    <th>Collected</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="cheques-table-body">
+            </tbody>
+        </table>
+    </div>
+    <div class="flex justify-between items-center mt-6">
+        <span style="font-size: 13px; color: var(--text-secondary);" id="cheque-count-info">Showing 0 cheques</span>
+        <div class="flex" style="gap: 8px;">
+            <button class="btn btn-secondary btn-sm" disabled>Prev</button>
+            <button class="btn btn-secondary btn-sm" disabled>Next</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cheque Details Modal -->
+<div class="modal-overlay" id="cheque-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modal-cheque-title">Cheque Details</h2>
+            <button class="close-modal" onclick="closeChequeModal()"><i data-lucide="x"></i></button>
+        </div>
+        <div class="modal-body" id="modal-cheque-content">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeChequeModal()">Close</button>
+            <button class="btn btn-primary" id="btn-change-status">Update Status</button>
+        </div>
+    </div>
+</div>

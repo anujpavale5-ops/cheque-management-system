@@ -1,0 +1,290 @@
+<div class="page-header">
+    <div class="page-title">
+        <h1>Cheque OCR</h1>
+        <p>Intelligent document verification and extraction.</p>
+    </div>
+</div>
+
+<!-- Progress Steps -->
+<div class="ocr-progress-steps" id="ocr-workflow-steps">
+    <div class="step active" id="step-nav-1"><span>01</span> Capture</div>
+    <div class="step-divider">→</div>
+    <div class="step" id="step-nav-2"><span>02</span> Scrutiny</div>
+    <div class="step-divider">→</div>
+    <div class="step" id="step-nav-3"><span>03</span> OCR</div>
+    <div class="step-divider">→</div>
+    <div class="step" id="step-nav-4"><span>04</span> Verify</div>
+</div>
+
+<!-- STEP 1: CAPTURE -->
+<div id="ocr-step-capture">
+    <div class="card text-center" style="padding: 48px 24px;">
+        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Upload cheque OR use camera</h2>
+        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 32px;">Please provide a clear image of the cheque.</p>
+        
+        <div class="flex justify-center" style="gap: 16px; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="startCamera()" style="padding: 12px 24px; font-size: 15px;">
+                <i data-lucide="camera" style="width: 20px; height: 20px;"></i> Use Camera
+            </button>
+            <input type="file" id="file-input" accept="image/jpeg, image/png, image/jpg, image/webp" style="display: none;">
+            <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()" style="padding: 12px 24px; font-size: 15px;">
+                <i data-lucide="upload-cloud" style="width: 20px; height: 20px;"></i> Upload Image
+            </button>
+        </div>
+        
+        <div id="drop-zone" style="margin-top: 32px; border: 1px dashed var(--border); border-radius: var(--border-radius-lg); padding: 32px 20px; transition: all var(--transition-fast);">
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">Drag & drop your cheque here</p>
+            <p style="color: var(--text-secondary); font-size: 12px;">JPG, PNG, JPEG, WEBP • Max 10 MB</p>
+        </div>
+        
+        <div style="margin-top: 32px; display: inline-flex; align-items: center; gap: 8px; color: var(--emerald); background: var(--emerald-light); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500;">
+            <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i> Secure Processing • Only valid cheque images are processed
+        </div>
+    </div>
+</div>
+
+<!-- CAMERA OVERLAY (Within Step 1) -->
+<div id="ocr-step-camera" style="display: none;">
+    <div class="card" style="padding: 24px;">
+        <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Camera Preview</h2>
+        
+        <div style="position: relative; border-radius: 12px; overflow: hidden; background: #000; min-height: 300px; display: flex; align-items: center; justify-content: center;">
+            <video id="camera-video" autoplay playsinline style="width: 100%; max-height: 60vh; object-fit: contain;"></video>
+            
+            <!-- Cheque Guide Overlay -->
+            <div style="position: absolute; top: 15%; left: 10%; right: 10%; bottom: 15%; border: 2px dashed rgba(255,255,255,0.7); box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); pointer-events: none; border-radius: 4px;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.8); font-weight: 500; font-size: 14px; letter-spacing: 2px;">CHEQUE POSITION GUIDE</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 24px; padding: 16px; background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border);">
+            <p style="font-weight: 500; font-size: 14px; margin-bottom: 8px;">Position the entire cheque inside the frame.</p>
+            <div class="flex" style="gap: 24px; flex-wrap: wrap; color: var(--text-secondary); font-size: 13px;">
+                <ul style="list-style-type: none;">
+                    <li>✓ All four corners are visible</li>
+                    <li>✓ Image is well lit</li>
+                </ul>
+                <ul style="list-style-type: none;">
+                    <li>✓ Text is clearly visible</li>
+                    <li>✓ Avoid glare and shadows</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-between" style="padding-bottom: 8px;">
+            <button class="btn btn-secondary" onclick="stopCamera()">Cancel</button>
+            <button class="btn btn-primary" onclick="captureImage()"><i data-lucide="aperture"></i> Capture Image</button>
+        </div>
+    </div>
+</div>
+
+<!-- STEP 2: SCRUTINY -->
+<div id="ocr-step-scrutiny" style="display: none;">
+    <div class="flex" style="gap: 24px; flex-wrap: wrap;">
+        <!-- Left: Image Preview -->
+        <div class="card" style="flex: 1; min-width: 300px;">
+            <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Image Preview</h2>
+            <div style="border-radius: 8px; overflow: hidden; border: 1px solid var(--border); background: #000; display: flex; align-items: center; justify-content: center; height: 200px;">
+                <img id="scrutiny-image-preview" src="" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
+            <p id="scrutiny-image-meta" style="font-size: 12px; color: var(--text-secondary); margin-top: 12px; text-align: center;">captured_image.jpg • 1.2 MB</p>
+            
+            <div class="mt-4 flex justify-between">
+                <button class="btn btn-secondary btn-sm" onclick="retakeOrUpload('camera')" id="btn-retake-photo"><i data-lucide="camera"></i> Retake Photo</button>
+                <button class="btn btn-secondary btn-sm" onclick="retakeOrUpload('upload')" id="btn-replace-image"><i data-lucide="upload"></i> Replace Image</button>
+            </div>
+        </div>
+        
+        <!-- Right: Scrutiny Status -->
+        <div class="card" style="flex: 1.5; min-width: 350px;">
+            
+            <!-- Processing Animation -->
+            <div id="scrutiny-processing">
+                <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 24px;">Cheque Scrutiny</h2>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 0;">
+                    <div class="spinner" style="margin-bottom: 32px;"></div>
+                    <ul style="list-style: none; color: var(--text-secondary); font-size: 14px; line-height: 2.5; width: 100%; max-width: 250px;" id="scrutiny-processing-steps">
+                        <li id="s-step-1" style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check-circle-2" style="width:16px; color:var(--emerald);"></i> Image received</li>
+                        <li id="s-step-2" style="display: flex; align-items: center; gap: 8px; opacity: 0.5;"><i data-lucide="circle" style="width:16px;"></i> Document detected</li>
+                        <li id="s-step-3" style="display: flex; align-items: center; gap: 8px; opacity: 0.5;"><i data-lucide="circle" style="width:16px;"></i> Checking image quality</li>
+                        <li id="s-step-4" style="display: flex; align-items: center; gap: 8px; opacity: 0.5;"><i data-lucide="circle" style="width:16px;"></i> Checking cheque boundaries</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- PASS Result -->
+            <div id="scrutiny-result-pass" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <i data-lucide="check-circle" style="width: 28px; height: 28px; color: var(--emerald);"></i>
+                    <h2 style="font-size: 18px; font-weight: 600; color: var(--emerald);">CHEQUE VERIFIED</h2>
+                </div>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">The uploaded document appears to be a valid cheque and is suitable for OCR.</p>
+                
+                <div style="background: var(--bg-color); border: 1px solid var(--border); border-radius: 8px; padding: 0 16px; margin-bottom: 24px;">
+                    <div class="scrutiny-status-item">
+                        <span class="scrutiny-status-label">Document Type</span>
+                        <span class="scrutiny-status-value">Cheque <i data-lucide="check" style="width:16px; color:var(--emerald);"></i></span>
+                    </div>
+                    <div class="scrutiny-status-item">
+                        <span class="scrutiny-status-label">Image Quality</span>
+                        <span class="scrutiny-status-value">Good <i data-lucide="check" style="width:16px; color:var(--emerald);"></i></span>
+                    </div>
+                    <div class="scrutiny-status-item">
+                        <span class="scrutiny-status-label">Document Boundary</span>
+                        <span class="scrutiny-status-value">Detected <i data-lucide="check" style="width:16px; color:var(--emerald);"></i></span>
+                    </div>
+                    <div class="scrutiny-status-item" style="padding-top: 16px;">
+                        <div style="width: 100%;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span class="scrutiny-status-label" style="font-weight: 500;">Overall Confidence</span>
+                                <span class="scrutiny-status-value" id="pass-confidence-val">97%</span>
+                            </div>
+                            <div class="progress-bar-container"><div class="progress-bar-fill" id="pass-confidence-bar" style="width: 97%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-right">
+                    <button class="btn btn-primary" onclick="proceedToOCR()">Continue to OCR <i data-lucide="arrow-right"></i></button>
+                </div>
+            </div>
+            
+            <!-- FAIL Result -->
+            <div id="scrutiny-result-fail" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <i data-lucide="x-circle" style="width: 28px; height: 28px; color: var(--error);"></i>
+                    <h2 style="font-size: 18px; font-weight: 600; color: var(--error);" id="fail-title">INVALID DOCUMENT</h2>
+                </div>
+                <p style="color: var(--text-primary); font-size: 14px; margin-bottom: 24px; font-weight: 500;" id="fail-desc">The uploaded image does not appear to be a cheque.</p>
+                
+                <div style="background: var(--error-light); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                    <ul style="list-style-type: disc; margin-left: 20px; color: var(--error); font-size: 14px;" id="fail-issues-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+                
+                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 24px;">Please upload or capture a clear image of the cheque to proceed.</p>
+                
+                <div class="text-right">
+                    <button class="btn btn-secondary" onclick="retakeOrUpload('camera')">Try Again</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<!-- STEP 3 & 4: OCR PROCESSING & RESULTS (Existing structure, slightly adapted) -->
+<div id="ocr-step-results" style="display: none;">
+    <div class="flex" style="gap: 24px; flex-wrap: wrap;">
+        <!-- Processing State -->
+        <div class="card" style="flex: 1; min-width: 300px; display: none;" id="ocr-processing-section">
+            <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 24px;">Processing Cheque...</h2>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 250px;">
+                <div class="spinner" style="margin-bottom: 32px;"></div>
+                <ul style="list-style: none; color: var(--text-secondary); font-size: 14px; line-height: 2;" id="processing-steps">
+                    <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check-circle-2" style="width:16px; color:var(--emerald);"></i> Cheque detected</li>
+                    <li id="ocr-step-1" style="display: flex; align-items: center; gap: 8px; opacity: 0.5;"><i data-lucide="circle" style="width:16px;"></i> Extracting text data</li>
+                    <li id="ocr-step-2" style="display: flex; align-items: center; gap: 8px; opacity: 0.5;"><i data-lucide="circle" style="width:16px;"></i> Validating fields</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Verification Form -->
+        <div class="card" style="flex: 1.5; min-width: 350px; display: none;" id="ocr-verification-section">
+            <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 24px;">Extracted Information</h2>
+            
+            <form id="ocr-results-form">
+                
+                <style>
+                    .field-preview {
+                        width: 100%;
+                        height: 48px;
+                        object-fit: contain;
+                        background: #f1f5f9;
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        margin-bottom: 8px;
+                    }
+                    .conf-badge {
+                        font-size: 11px;
+                        padding: 2px 6px;
+                        border-radius: 12px;
+                        font-weight: 600;
+                    }
+                    .conf-high { background: #dcfce7; color: #166534; }
+                    .conf-medium { background: #fef08a; color: #854d0e; }
+                    .conf-low { background: #fee2e2; color: #991b1b; }
+                    .label-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 4px;
+                    }
+                </style>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label class="form-label" style="margin:0;">Cheque Number</label>
+                            <span id="conf-number" class="conf-badge">--</span>
+                        </div>
+                        <img id="crop-number" class="field-preview" src="/debug_crops/micr_strip_crop.jpg" onerror="this.style.display='none'" />
+                        <input type="text" class="form-control" id="res-number" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label class="form-label" style="margin:0;">Amount</label>
+                            <span id="conf-amount" class="conf-badge">--</span>
+                        </div>
+                        <img id="crop-amount" class="field-preview" src="/debug_crops/amount_numbers_crop.jpg" onerror="this.style.display='none'" />
+                        <input type="number" class="form-control" id="res-amount" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label class="form-label" style="margin:0;">Date</label>
+                            <span id="conf-date" class="conf-badge">--</span>
+                        </div>
+                        <img id="crop-date" class="field-preview" src="/debug_crops/date_crop.jpg" onerror="this.style.display='none'" />
+                        <input type="date" class="form-control" id="res-date" required>
+                    </div>
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label class="form-label" style="margin:0;">Payee</label>
+                            <span id="conf-payee" class="conf-badge">--</span>
+                        </div>
+                        <img id="crop-payee" class="field-preview" src="/debug_crops/payee_crop.jpg" onerror="this.style.display='none'" />
+                        <input type="text" class="form-control" id="res-payee" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="label-row">
+                        <label class="form-label" style="margin:0;">Account Number (Extracted)</label>
+                        <span id="conf-account" class="conf-badge">--</span>
+                    </div>
+                    <img id="crop-account" class="field-preview" src="/debug_crops/account_crop.jpg" onerror="this.style.display='none'" />
+                    <input type="text" class="form-control" id="res-account" readonly style="background-color: var(--bg-color);">
+                </div>
+                
+                <hr style="border:0; border-top:1px solid var(--border); margin: 24px 0;">
+                
+                <div class="form-group">
+                    <label class="form-label">Assign to Teacher</label>
+                    <select class="form-control" id="res-teacher" required>
+                        <option value="">Select a teacher...</option>
+                    </select>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">If no match, <a href="#/teachers" style="color: var(--info);">add a new teacher</a> first.</p>
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button type="button" class="btn btn-secondary" onclick="resetOCRWorkflow()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Cheque</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
